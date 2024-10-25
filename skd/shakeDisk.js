@@ -256,6 +256,7 @@ function socket_connect() {
 
     socket.onclose = function (event) {
         console.log('Kết nối WebSocket đã đóng.');
+        clearInterval(sendInterval);
     };
     socket.onerror = function (error) {
         console.error('Lỗi WebSocket:', error);
