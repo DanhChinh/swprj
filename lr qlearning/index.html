@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Websocket</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class="form">
+        <label>First State: </label>
+        <input  id="first_state" type="text" placeholder="1 or 2" value="######">
+        <label>First Id: </label>
+        <input  id="first_sid" type="text" placeholder="6 digs" value="111111">
+        <button id="btn_sid">start</button>
+        <button id="btn_stop">stop</button>
+    </div>
+    <hr>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>SID</th>
+                <th>STATE</th>
+                <th>EID</th>
+                <th>B</th>
+                <th>REWARD</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+    <script src="index.js"></script>
+
+</body>
+
+</html>
