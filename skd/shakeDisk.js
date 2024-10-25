@@ -1,4 +1,4 @@
-function drawChart(dataArray) {
+function drawChart(dataArray, domId, charVariable) {
     const dataToPlot = dataArray.length > 100 ? dataArray.slice(-100) : dataArray;
 
     // Tính toán giá trị cộng dồn
@@ -10,15 +10,15 @@ function drawChart(dataArray) {
     }, 0);
 
     // Nếu biểu đồ đã được khởi tạo, cập nhật dữ liệu
-    if (myChart) {
-        myChart.data.labels = dataToPlot.map((_, index) => index + 1);
-        myChart.data.datasets[0].data = dataToPlot;
-        myChart.data.datasets[1].data = cumulativeSum;
-        myChart.update(); // Cập nhật biểu đồ
+    if (charVariable) {
+        charVariable.data.labels = dataToPlot.map((_, index) => index + 1);
+        charVariable.data.datasets[0].data = dataToPlot;
+        charVariable.data.datasets[1].data = cumulativeSum;
+        charVariable.update(); // Cập nhật biểu đồ
     } else {
         // Thiết lập biểu đồ lần đầu
-        const ctx = document.getElementById('myChart').getContext('2d');
-        myChart = new Chart(ctx, {
+        const ctx = document.getElementById(domId).getContext('2d');
+        charVariable = new Chart(ctx, {
             type: 'bar', // Biểu đồ dạng cột
             data: {
                 labels: dataToPlot.map((_, index) => index + 1), // Vị trí các phần tử
@@ -46,6 +46,7 @@ function drawChart(dataArray) {
             }
         });
     }
+    return charVariable;
 }
 
 
@@ -82,6 +83,19 @@ var moneys = {
         }
     }
 }
+var myValue = {
+    "maxGameValue":undefined,
+    // "minGameValue":undefined,
+    // "GameValue":undefined,
+    "maxMyValue":100,
+    getValue:function(GameValue){
+        if(!this["maxGameValue"] ){
+            return 0;
+        }
+        return Math.floor()(this["maxMyValue"]*GameValue)/this["maxGameValue"];
+    }
+}
+
 var profits = {
     0:0,
     1:0,
@@ -98,6 +112,8 @@ var profits = {
      this[3] = moneys["total"] - (moneys[3]*4 + moneys[5]*2);
      this[5] = moneys["total"] - moneys[5]*2 -  Math.floor((moneys[1]*4 + moneys[3]*4)/2);
      this["maxprofit"] = Math.max(this[0], this[1], this[2], this[3], this[4], this[5]);
+     //???
+     myValue["maxGameValue"] = Math.max(myValue["maxGameValue"], this[1], this[2], this[3] )
     },
     updateDom: function(){
         for(let i=0; i<6; i++){
@@ -112,26 +128,55 @@ var profits = {
         }
     }
 }
-var myValue = {
-    "maxGameValue":undefined,
-    // "minGameValue":undefined,
-    // "GameValue":undefined,
-    "maxMyValue":100,
-    getValue:function(GameValue){
-        if(!this["maxGameValue"] ){
-            return 0;
-        }
-        return Math.floor()(this["maxMyValue"]*GameValue)/this["maxGameValue"];
-    }
+
+function sendBet(myBet){
+    let choice = myBet["choice"]%2;
+    let bet  = myValue.getValue(myBet["value"]);
+    console.log(bet, choice)
 }
+
+function makeChoie(profits){
+    let myBet = {
+        "choice": undefined,
+        "value": 0
+    }
+    if (profits[1]>0 && profits[2]>0 && profits[3]>0){
+        console.log("p1, p2, p3 >0")
+        return myBet;
+    }
+    let maxprofit = Math.max(profits[1], profits[2], profits[3]);
+    
+    for (let i=1; i<4; i++){
+        if(profits[i] == maxprofit){
+            myBet["choice"] = i;
+            break;
+        }
+    }
+    if(myBet["choice"] == 2){
+        myBet["value"] = Math.max(profits[1], profits[3])
+    }else{
+        myBet["value"] = profits[2];
+    }
+    //???
+    myBet["choice"] = myBet["choice"]%2;
+    myBet["value"] = Math.abs(myBet["value"]);
+
+    return myBet;
+}
+var gameChart;
 var myChart;
-var profitHistory = [];
+var gameProfitHistory = [];
+var myProfitHistory = []
 var socket;
 var sendInterval = undefined;
 var sendCounter = 2;
 var roundCounter = 0;
 var rtCounter = 0;
 var timerCounter = 0;
+var myBet = {
+    "choice": undefined,
+    "value": 0
+};
 function socket_connect() {
     socket = new WebSocket(shakeDisk.url);
 
@@ -142,7 +187,7 @@ function socket_connect() {
 
     };
     socket.onmessage = function (event) {
-        try {
+
             let data = JSON.parse(event.data);
             if (typeof data[1] === 'object') {
                 if ("plugins" in data[1]) {
@@ -157,8 +202,15 @@ function socket_connect() {
                     }
                     console.log("result:", data[1]["rt"])
                     let result = +data[1]["rt"];
-                    profitHistory.push(profits[result]);
-                    drawChart(profitHistory);
+                    if(result %2 == myBet["choice"]){
+                        myProfitHistory.push(myBet["value"]);
+                    }else{
+                        myProfitHistory.push(-myBet["value"]);
+
+                    }
+                    gameProfitHistory.push(profits[result]);
+                    gameChart =  drawChart(gameProfitHistory, "gameChartDOM", gameChart);
+                    myChart =  drawChart(myProfitHistory, "myChartDOM", myChart);
 
                     document.getElementById(`money${result}`).classList.add("isresult");
                     document.getElementById(`profit${result}`).classList.add("isresult");
@@ -170,6 +222,11 @@ function socket_connect() {
                 }
                 else if ("ets" in data[1]) {
                     timerCounter++;
+                    if (timerCounter == 40){
+                        myBet = makeChoie(profits);
+                        console.log("myBet", myBet)
+
+                    }
                     DomTimer.innerText = timerCounter;
                     moneys.updateMoney(data[1]["ets"]);
                     moneys.updateDom();
@@ -192,9 +249,9 @@ function socket_connect() {
                 } 
             }
 
-        } catch (error) {
-            console.error('Lỗi khi phân tích dữ liệu:', error);
-        }
+        // } catch (error) {
+        //     console.error('Lỗi khi phân tích dữ liệu:', error);
+        // }
     };
 
     socket.onclose = function (event) {
@@ -207,10 +264,3 @@ function socket_connect() {
 
 
 socket_connect();
-
-//choice = max??
-//value = min??
-/**
- * 
- * 
- */
