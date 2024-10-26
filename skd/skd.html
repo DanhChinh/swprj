@@ -1,0 +1,150 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *{
+            margin: 5;
+            padding: 10;
+            box-sizing:border-box !important;
+            text-align: center;
+        }
+        #DomTimer{
+            width: 50px;
+            height: 50px;
+            line-height: 30px;
+            font-size: larger;
+            text-align: center;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            border: 1px solid black;
+            border-radius: 50%;
+            background-color: rgb(6, 123, 76);
+            color: whitesmoke;
+        }
+        #DOMisPlay{
+
+            position: fixed;
+            top: 10px;
+            left: 100px;
+
+        }
+        .myScreen{
+            width: 100%;
+            /* height: 100vh;/ */
+        }
+
+        .table{
+            width: 100%;
+            display: flex;
+            background-color: rgb(255, 255, 255);
+            /* height: 20vh; */
+
+        }
+        .matplot{
+            margin-top: 10px;
+        }
+        .chart{
+            width: 100%;
+            height: 35vh;
+            max-height: 35vh;
+            border: 1px solid black;
+        }
+        .show{
+            flex: 50%;
+        }
+        .layer1{
+            width: 100%;
+            border: 1px dashed black;
+            /* background-color: antiquewhite; */
+            display: flex;
+        }
+        .layer2{
+            display: flex;
+        }
+        #profit2, #profit5, #money2, #money5{
+            flex: 30%;
+            background-color: rgb(4, 138, 42);
+            font-size: 28px;
+            line-height: 40px;
+        }
+        #profit0, #profit1, #profit3, #profit4, #money0, #money1, #money3, #money4{
+            flex: 25%;
+            background-color: rgb(196, 156, 233);
+        }
+        .maxprofit{
+            border: 4px dashed rgb(160, 3, 234);
+        }
+        .isresult{
+            border: 5px solid rgb(119, 5, 181);
+        }
+
+    </style>
+</head>
+<body>
+    <button id="DOMisPlay">Start</button>
+    <div id="DomTimer">0</div>
+    <div class="myScreen">
+        <div class="table">
+            <div class="show">
+                <div class="layer1">
+                    <div id="money2">m2</div>
+                    <div id="money5">m5</div>
+        
+                </div>
+                <div class="layer2">
+                    <div  id="money0">m0</div>
+                    <div id="money4">m4</div>
+                    <div id="money3">m3</div>
+                    <div id="money1">m1</div>
+        
+                </div>
+            </div>
+            <div class="show">
+                <div class="layer1">
+                    <div id="profit2">p2</div>
+                    <div id="profit5">p5</div>
+        
+                </div>
+                <div class="layer2">
+                    <div  id="profit0">p0</div>
+                    <div id="profit4">p4</div>
+                    <div id="profit3">p3</div>
+                    <div id="profit1">p1</div>
+        
+                </div>
+            </div>
+        </div>
+        <div class="matplot">
+            <canvas class="chart" id="gameChartDOM" ></canvas>
+            <canvas class="chart" id="myChartDOM" ></canvas>
+        </div>
+    </div>
+    <div class="space">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit in et cumque, quod nemo dignissimos aperiam quisquam saepe modi, ipsam animi quo debitis fugiat deserunt, obcaecati dolorem. Expedita, quos natus.
+        Ab illo harum, quos assumenda itaque sit, sapiente reiciendis amet, consequuntur fugit vel ea error enim doloremque earum quam? Ab quam voluptatibus optio mollitia harum saepe molestias eligendi id iusto.
+        Reiciendis repellendus laborum dolore eos rerum voluptatibus nihil totam culpa cum voluptatum, quasi asperiores perferendis ullam fugiat explicabo ut earum modi eligendi quas autem dolorem quia quis sapiente? Consequatur, delectus!
+        Mollitia, voluptate assumenda? Expedita quam saepe assumenda voluptate dignissimos itaque et ullam. Illum vitae aspernatur ut nihil, quia eaque eius error nam magnam nisi, cupiditate a quam consectetur similique rerum?
+        Explicabo sint, mollitia facere possimus corporis modi cumque aliquam obcaecati. Perferendis pariatur, recusandae quisquam tempora neque ipsam quae eligendi quaerat delectus ad rerum eveniet impedit facilis doloribus similique id consequatur!
+        Rem accusamus, porro quae itaque dignissimos dolores vero eveniet dolorum autem aut temporibus dicta beatae expedita deserunt labore quisquam! Distinctio iure amet possimus iusto facere eaque et porro impedit perspiciatis.
+        Laudantium, similique! Officia tenetur mollitia nostrum atque. Natus provident quae tempore vel suscipit harum culpa fugit laboriosam ad odio, iusto facilis nostrum voluptates rem nobis pariatur, iste quaerat qui laborum!
+        Mollitia necessitatibus quidem maxime inventore odit sapiente velit similique! Cumque pariatur quae consectetur amet. Animi aspernatur harum sed error rem laboriosam optio quibusdam deleniti, reprehenderit quis cupiditate amet consequuntur unde?
+        Sunt totam, ex nihil repellat officia maiores aspernatur in delectus deleniti quod dolore omnis nulla voluptates dignissimos dicta, saepe itaque, tempore suscipit? Porro quod atque unde. Ad temporibus nobis incidunt?
+        Dignissimos voluptatibus quas nesciunt placeat ab quos sunt accusantium impedit ratione perferendis quisquam mollitia exercitationem debitis inventore numquam vitae beatae voluptas ullam enim odio illo doloribus, fugit maiores earum! Qui.
+    </div>
+    <script>
+        var isPlay = false;
+        DOMisPlay.onclick = function(e){
+            e.target.innerHTML = isPlay ? "start" : "stop";
+            isPlay =!isPlay;
+        }
+    </script>
+    <script src="dchart.js"></script>
+    <script src="skd.js"></script>
+
+</body>
+</html>
