@@ -1,7 +1,4 @@
-function normalization(gameValue, gameMax = 150_000_000, myMax = 20_000) {
-    let myValue = myMax * gameValue / gameMax;
-    return Math.round(myValue / 500) * 500;
-}
+
 
 var shakeDisk = {
     url: "wss://xdtl.azhkthg1.net/websocket",
@@ -12,7 +9,7 @@ var shakeDisk = {
     betMessage: (eid, v) => [6, "ShakeDisk", "SD_HoangKimLongPlugin", { "cmd": 900, "eid": eid, "v": v }]
 
 }
-var formatn = number => numeral(number).format('0,0');
+
 
 var moneys = {
     0: 0, //0trang
@@ -36,18 +33,7 @@ var moneys = {
         }
     }
 }
-var myValue = {
-    "maxGameValue": undefined,
-    // "minGameValue":undefined,
-    // "GameValue":undefined,
-    "maxMyValue": 100,
-    getValue: function (GameValue) {
-        if (!this["maxGameValue"]) {
-            return 0;
-        }
-        return Math.floor()(this["maxMyValue"] * GameValue) / this["maxGameValue"];
-    }
-}
+
 
 var profits = {
     0: 0,
@@ -95,57 +81,9 @@ function sendBet(myBet) {
 
 }
 
-function makeChoie(profits) {
-    let myBet = {
-        "choice": undefined,
-        "value": 0
-    }
-    // if (profits[1] > 0 && profits[2] > 0 && profits[3] > 0) {
-    //     console.log("p1, p2, p3 >0")
-    //     return myBet;
-    // }
-    // let maxprofit = Math.max(profits[1], profits[2], profits[3]);
-
-    // for (let i = 1; i < 4; i++) {
-    //     if (profits[i] == maxprofit) {
-    //         myBet["choice"] = i;
-    //         break;
-    //     }
-    // }
-    // if (myBet["choice"] == 2) {
-    //     myBet["value"] = Math.min(profits[1], profits[3])
-    // } else {
-    //     myBet["value"] = profits[2];
-    // }
-    // myBet["value"] = Math.abs(myBet["value"]);
-    // return myBet;
-
-    
-    let maxprofit = Math.max(profits[1], profits[2], profits[3]);
-    myBet["value"] = maxprofit;
-        for (let i = 1; i < 4; i++) {
-        if (profits[i] == maxprofit) {
-            myBet["choice"] = i;
-            break;
-        }
-    }
-    return myBet;
 
 
-}
 
-var gameProfitHistory = [];
-var myProfitHistory = []
-var socket;
-var sendInterval = undefined;
-var sendCounter = 2;
-var roundCounter = 0;
-var rtCounter = 0;
-var timerCounter = 0;
-var myBet = {
-    "choice": undefined,
-    "value": 0
-};
 function socket_connect() {
     socket = new WebSocket(shakeDisk.url);
 
@@ -178,29 +116,32 @@ function socket_connect() {
 
                 }
                 gameProfitHistory.push(profits[result]);
-                gameChart = drawChart(gameProfitHistory, "gameChartDOM", gameChart);
-                myChart = drawChart(myProfitHistory, "myChartDOM", myChart);
+                gameChart = drawChart(gameProfitHistory, "DOM_gameChart", gameChart);
+                myChart = drawChart(myProfitHistory, "DOM_myChart", myChart);
 
-                document.getElementById(`money${result}`).classList.add("isresult");
                 document.getElementById(`profit${result}`).classList.add("isresult");
                 setTimeout(() => {
-                    document.getElementById(`money${result}`).classList.remove("isresult");
                     document.getElementById(`profit${result}`).classList.remove("isresult");
 
                 }, 11000)
             }
             else if ("ets" in data[1]) {
                 timerCounter++;
-                if (timerCounter == 40) {
-                    myBet = makeChoie(profits);
+                if (timerCounter == 43) {
+                    let profitAvg = calcAvgList(profitList)
+                    console.log(profitAvg);
+                    myBet = makeChoie(profitAvg);
                     sendBet(myBet);
+                    profitList = []
 
                 }
-                DomTimer.innerText = timerCounter;
+                //updateDOM
+                DOM_timer.style = `width: ${Math.floor(timerCounter*100/50)}%`;
                 moneys.updateMoney(data[1]["ets"]);
-                moneys.updateDom();
+                // moneys.updateDom();
                 profits.updateProfit();
                 profits.updateDom();
+                profitList.push(JSON.parse(JSON.stringify(profits)))
 
             }
             else {

@@ -1,5 +1,6 @@
 function drawChart(dataArray, domId, charVariable) {
-    const dataToPlot = dataArray.length > 100 ? dataArray.slice(-100) : dataArray;
+    // const dataToPlot = dataArray.length > 100 ? dataArray.slice(-100) : dataArray;
+    const dataToPlot = dataArray;
 
     // Tính toán giá trị cộng dồn
     const cumulativeSum = [];
@@ -48,5 +49,6 @@ function drawChart(dataArray, domId, charVariable) {
     }
     return charVariable;
 }
-var gameChart;
-var myChart;
+var defaultStyle = {
+    
+}
