@@ -2,10 +2,13 @@ from flask import Flask
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import json
-
+from server_handle import *
 app = Flask(__name__)
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn
+
+data = loadFile("zdata.txt")
+
 
 @socketio.on('message')
 def handle_message(msg):
