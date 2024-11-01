@@ -174,3 +174,4 @@ function socket_connect() {
 
 
 socket_connect();
+socket_io_connect();

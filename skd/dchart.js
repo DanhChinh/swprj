@@ -49,6 +49,3 @@ function drawChart(dataArray, domId, charVariable) {
     }
     return charVariable;
 }
-var defaultStyle = {
-    
-}

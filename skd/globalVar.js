@@ -21,21 +21,26 @@ function makeChoie(profits) {
     let p1 = profits[1];
     let p2 = profits[2];
     let p3 = profits[3];
-    let sortArr = [p1, p2, p3].sort((a,b)=>a-b);
+    // let sortArr = [p1, p2, p3].sort((a,b)=>a-b);
+    let value = Math.max(p1, p2, p3);
     let choice = undefined;
-    let value = 0;
-    for(let i = 0; i < sortArr.length; i++) {
-        if (profits[i] == sortArr[2]){
-            choice = 1;
-            break;
+    for(let i=1; i<=3;i++){
+        if(profits[i] == value){
+            choice = i;
         }
     }
-    if (p1>0 && p2>0 && p3>0){
-        value = sortArr[0];
-    }
-    else{
-        value = sortArr[1];
-    }
+    // for(let i = 0; i < sortArr.length; i++) {
+    //     if (profits[i] == sortArr[2]){
+    //         choice = 1;
+    //         break;
+    //     }
+    // }
+    // if (p1>0 && p2>0 && p3>0){
+    //     value = sortArr[0];
+    // }
+    // else{
+    //     value = sortArr[1];
+    // }
     return {
         "choice": choice,
         "value": value
@@ -57,13 +62,14 @@ var myValue = {
         return Math.floor()(this["maxMyValue"] * GameValue) / this["maxGameValue"];
     }
 }
-var gameChart  = undefined;
-var myChart = undefined;
+var socket_io;
+var socket;
+var gameChart;
+var myChart;
 var gameProfitHistory = [];
 var myProfitHistory = []
 var profitList = [];
-var socket;
-var sendInterval = undefined;
+var sendInterval;
 var sendCounter = 2;
 var roundCounter = 0;
 var rtCounter = 0;
@@ -72,3 +78,4 @@ var myBet = {
     "choice": undefined,
     "value": 0
 }
+
