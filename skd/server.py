@@ -7,13 +7,17 @@ app = Flask(__name__)
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn
 
-data = loadFile("zdata.txt")
-
+server_data = Data()
 
 @socketio.on('message')
 def handle_message(msg):
     obj = json.loads(msg)
-    print(obj)
+    data = obj["content"]
+    print(data)
+    if obj["header"] == "for_prd":
+        server_data.prd = np.append(server_data.prd, data)
+    else:
+        server_data.trend = data
 
 @socketio.on('connect')
 def handle_connect():
@@ -22,7 +26,14 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    # print("prd",data_prd)
+    # print("trend",data_trend)
+    saveFile("./data/prd/prd.txt", server_data.prd)
+    if len(server_data.trend)>10:
+        print("save server_data.trend")
+        saveFile(f"./data/trend/{getTextTime()}.txt", server_data.trend)
     print('Client disconnected')
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

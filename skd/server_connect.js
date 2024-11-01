@@ -1,8 +1,8 @@
-function socket_io_connect(socket_io){
-    socket_io = io('http://localhost:5000');
+function socket_io_connect(){
+    const socket_io = io('http://localhost:5000');
 
     socket_io.on('response', function(data) {
-    
+        // workspace
         console.log(JSON.parse(data))
     
     });
@@ -14,4 +14,5 @@ function socket_io_connect(socket_io){
     socket_io.on('disconnect', function() {
         console.log('Disconnected from server');
     });
+    return socket_io;
 }

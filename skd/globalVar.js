@@ -3,6 +3,11 @@ function normalization(gameValue, gameMax , myMax ) {
     return Math.round(myValue / 500) * 500;
 }
 var formatn = number => numeral(number).format('0,0');
+function Message(header, content, tmp){
+    let counter = 0;
+    return { counter, header, content, tmp}
+}
+
 var calcAvgList = function(list){
     let list_d3 = list.slice(-3);
     let objAvg = {0:0, 1:1, 2:2, 3:3, 4:4, 5:5};
@@ -17,6 +22,13 @@ var calcAvgList = function(list){
     return objAvg;    
 
 }
+
+function objList2Arr(objList){
+    let arr = [];
+    objList.forEach(obj=> arr = arr.concat(Object.values(obj)))
+    return arr;
+}
+
 function makeChoie(profits) {
     let p1 = profits[1];
     let p2 = profits[2];
@@ -62,13 +74,15 @@ var myValue = {
         return Math.floor()(this["maxMyValue"] * GameValue) / this["maxGameValue"];
     }
 }
-var socket_io;
-var socket;
+
+
 var gameChart;
 var myChart;
 var gameProfitHistory = [];
 var myProfitHistory = []
 var profitList = [];
+var moneys45s = [];
+var moneys45sList = [];
 var sendInterval;
 var sendCounter = 2;
 var roundCounter = 0;
@@ -79,3 +93,5 @@ var myBet = {
     "value": 0
 }
 
+var js2PtrendMess = Message("for_trend", undefined, undefined);
+var js2PprdMess = Message("for_prd", undefined, undefined);

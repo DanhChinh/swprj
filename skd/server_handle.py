@@ -7,9 +7,11 @@ def getTextTime():
     return current_time.strftime("%Y%m%d%H%M%S")
 
 def loadFile(path ):
-    if os.path.exists(path):
-        return  np.loadtxt(path, dtype=int)
-    return []
+    try:
+        if os.path.exists(path):
+            return  np.loadtxt(path, dtype=int)
+    except:
+        return []
 
 def saveFile(path, data):
     np.savetxt(path, data, fmt='%d')
@@ -34,4 +36,12 @@ def makeTestData():
         print(i)
     print("Make test datat: done")
 
-makeTestData()
+class Data:
+    def __init__(self):
+        self.trend = []
+        self.prd = loadFile("./data/prd/prd.txt")
+        print(self.prd)
+        
+    # def show(self):
+    #     print("data_prd")
+    #     print(self.prd)

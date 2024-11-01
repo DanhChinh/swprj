@@ -84,8 +84,8 @@ function sendBet(myBet) {
 
 
 
-function socket_connect() {
-    socket = new WebSocket(shakeDisk.url);
+function socket_connect(socket_io) {
+    const socket = new WebSocket(shakeDisk.url);
 
     socket.onopen = function (event) {
         console.log('Kết nối WebSocket đã mở.');
@@ -96,12 +96,13 @@ function socket_connect() {
     socket.onmessage = function (event) {
 
         let data = JSON.parse(event.data);
+        //workspace
         if (typeof data[1] === 'object') {
-            if ("plugins" in data[1]) {
-                console.log(data[1].plugins)
+            if ("plugins" in data[1]) {//
+                console.log("plugin->send HklMessage")
                 socket.send(JSON.stringify(shakeDisk.HklMessage));
 
-            } else if ("rt" in data[1]) {
+            } else if ("rt" in data[1]) { //endTime, getResult
                 rtCounter++;
                 timerCounter = -1;
                 if (rtCounter % 2 == 1) {
@@ -109,13 +110,27 @@ function socket_connect() {
                 }
                 console.log("result:", data[1]["rt"])
                 let result = +data[1]["rt"];
-                if (result%2 == myBet["choice"]%2) {
+                if (result % 2 == myBet["choice"] % 2) {
                     myProfitHistory.push(myBet["value"]);
                 } else {
                     myProfitHistory.push(-myBet["value"]);
 
                 }
                 gameProfitHistory.push(profits[result]);
+                js2PtrendMess["content"] = gameProfitHistory 
+                if (js2PtrendMess["counter"]){
+                    socket_io.send(JSON.stringify(js2PtrendMess))
+                }
+                if (js2PprdMess["counter"]){
+
+                    js2PprdMess["content"] = js2PprdMess["content"].concat(result);
+                }
+                js2PprdMess["counter"]+=1;
+                js2PtrendMess["counter"]+=1;
+                // console.log(js2PprdMess)
+                socket_io.send(JSON.stringify(js2PprdMess))
+                profitList = []
+
                 gameChart = drawChart(gameProfitHistory, "DOM_gameChart", gameChart);
                 myChart = drawChart(myProfitHistory, "DOM_myChart", myChart);
 
@@ -125,18 +140,17 @@ function socket_connect() {
 
                 }, 11000)
             }
-            else if ("ets" in data[1]) {
+            else if ("ets" in data[1]) { //betTime
                 timerCounter++;
                 if (timerCounter == 43) {
                     let profitAvg = calcAvgList(profitList)
-                    console.log(profitAvg);
                     myBet = makeChoie(profitAvg);
                     sendBet(myBet);
-                    profitList = []
+                    js2PprdMess["content"] = objList2Arr(profitList);
 
                 }
                 //updateDOM
-                DOM_timer.style = `width: ${Math.floor(timerCounter*100/50)}%`;
+                DOM_timer.style = `width: ${Math.floor(timerCounter * 100 / 50)}%`;
                 moneys.updateMoney(data[1]["ets"]);
                 // moneys.updateDom();
                 profits.updateProfit();
@@ -147,8 +161,9 @@ function socket_connect() {
             else {
                 // console.log(data)
             }
-
-        } else {
+        //endworkspace
+        }
+        else {
             if (data[1] == true) {
                 socket.send(JSON.stringify(shakeDisk.infoMessage));
                 sendInterval = setInterval(() => {
@@ -170,8 +185,10 @@ function socket_connect() {
     socket.onerror = function (error) {
         console.error('Lỗi WebSocket:', error);
     };
+    return socket;
+
 }
 
 
-socket_connect();
-socket_io_connect();
+var socket_io =  socket_io_connect();
+var socket =  socket_connect(socket_io);
