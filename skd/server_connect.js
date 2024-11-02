@@ -1,5 +1,5 @@
 function socket_io_connect(){
-    const socket_io = io('http://localhost:5000');
+    let socket_io = io('http://localhost:5000');
 
     socket_io.on('response', function(data) {
         // workspace
@@ -16,3 +16,4 @@ function socket_io_connect(){
     });
     return socket_io;
 }
+var socket_io =  socket_io_connect();

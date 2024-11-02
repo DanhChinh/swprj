@@ -49,3 +49,8 @@ function drawChart(dataArray, domId, charVariable) {
     }
     return charVariable;
 }
+
+var CHART = {
+    "game": undefined,
+    "player": undefined
+}

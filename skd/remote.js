@@ -1,16 +1,24 @@
-DOM_isPlay.onclick = (e)=>{
-    isPlay = !isPlay;
-    e.target.textContent = isPlay? "Stop" : "Start";
-    e.target.style.backgroundColor = isPlay? "red" : "green";
-    if (isPlay){
-        gameMax = +DOM_gameMax.value;
-        myMax = +DOM_myMax.value;
-        console.log(gameMax, myMax)
-    } 
-}
-DOM_isShowProfits.onclick = (e)=>{
-    isShowProfits =!isShowProfits;
-    e.target.textContent = isShowProfits? "HideP" : "ShowP";
-    document.getElementsByClassName('DOM_profits')[0].style.display = isShowProfits? "block" : "none";
+var REMOTE = {
+    "isPlay": false,
+    "isShowProfits": false,
+    "gameMax": undefined,
+    "myMax": undefined
 
 }
+
+DOM_isPlay.onclick = (e) => {
+    REMOTE.isPlay = !REMOTE.isPlay;
+    e.target.textContent = REMOTE.isPlay ? "Stop" : "Start";
+    e.target.style.backgroundColor = REMOTE.isPlay ? "red" : "green";
+    if (REMOTE.isPlay) {
+        REMOTE.gameMax = +DOM_gameMax.value;
+        REMOTE.myMax = +DOM_myMax.value;
+    }
+}
+DOM_isShowProfits.onclick = (e) => {
+    REMOTE.isShowProfits = !REMOTE.isShowProfits;
+    e.target.textContent = REMOTE.isShowProfits ? "HideP" : "ShowP";
+    document.getElementsByClassName('DOM_profits')[0].style.display = REMOTE.isShowProfits ? "block" : "none";
+
+}
+

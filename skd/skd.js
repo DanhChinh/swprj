@@ -1,23 +1,23 @@
 
 
-var shakeDisk = {
+var MESSAGE_WS = {
     url: "wss://xdtl.azhkthg1.net/websocket",
-    loginMessage: [1, "ShakeDisk", "SC_y2hpbmhz", "ZGFuaA==", { "info": "{\"ipAddress\":\"2405:4802:21c:6bc0:d3da:aa86:9d83:365c\",\"userId\":\"7fdfa57d-8014-4140-98cc-0e8698fe1e92\",\"username\":\"SC_y2hpbmhz\",\"timestamp\":1729838405701}", "signature": "3B40174A7E8C19EC6CF30400FACABA4BB95A076093D0E48CD25B12479BC62D21B7059D9DE8E0A55E7FD4F6BC586EAC104A5FF89214793505715B695C615A18669334C18DBB39925E4C6AA36693998A06C541E15C97359324DB55CB959E6017B6C5445A74C288DB70481D348996716D419D69916AB884C3095F2768B26F8B24DE", "pid": 4, "subi": true }],
-    infoMessage: [6, "ShakeDisk", "ShakeDiskPlugin", { "cmd": 1950 }],
-    resultMessage: counter => [7, "ShakeDisk", counter, 0],
-    HklMessage: [6, "ShakeDisk", "SD_HoangKimLongPlugin", { "cmd": 1950 }],
-    betMessage: (eid, v) => [6, "ShakeDisk", "SD_HoangKimLongPlugin", { "cmd": 900, "eid": eid, "v": v }]
+    login: [1, "ShakeDisk", "SC_y2hpbmhz", "ZGFuaA==", { "info": "{\"ipAddress\":\"2405:4802:21c:6bc0:d3da:aa86:9d83:365c\",\"userId\":\"7fdfa57d-8014-4140-98cc-0e8698fe1e92\",\"username\":\"SC_y2hpbmhz\",\"timestamp\":1729838405701}", "signature": "3B40174A7E8C19EC6CF30400FACABA4BB95A076093D0E48CD25B12479BC62D21B7059D9DE8E0A55E7FD4F6BC586EAC104A5FF89214793505715B695C615A18669334C18DBB39925E4C6AA36693998A06C541E15C97359324DB55CB959E6017B6C5445A74C288DB70481D348996716D419D69916AB884C3095F2768B26F8B24DE", "pid": 4, "subi": true }],
+    info: [6, "ShakeDisk", "ShakeDiskPlugin", { "cmd": 1950 }],
+    result: counter => [7, "ShakeDisk", counter, 0],
+    Hkl: [6, "ShakeDisk", "SD_HoangKimLongPlugin", { "cmd": 1950 }],
+    bet: (eid, v) => [6, "ShakeDisk", "SD_HoangKimLongPlugin", { "cmd": 900, "eid": eid, "v": v }]
 
 }
 
 
 var moneys = {
-    0: 0, //0trang
-    1: 0, //1trang
-    2: 0, //2trang 
-    3: 0, //3trang
-    4: 0, //4trang
-    5: 0, //
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
     "total": 0,
 
     updateMoney: function (arrayData) {
@@ -51,8 +51,6 @@ var profits = {
         this[3] = moneys["total"] - (moneys[3] * 4 + moneys[5] * 2);
         this[5] = moneys["total"] - moneys[5] * 2 - Math.floor((moneys[1] * 4 + moneys[3] * 4) / 2);
         this["maxprofit"] = Math.max(this[0], this[1], this[2], this[3], this[4], this[5]);
-        //???
-        myValue["maxGameValue"] = Math.max(myValue["maxGameValue"], this[1], this[2], this[3])
     },
     updateDom: function () {
         for (let i = 0; i < 6; i++) {
@@ -68,13 +66,13 @@ var profits = {
     }
 }
 
-function sendBet(myBet) {
-    if (myBet['choice'] === undefined || !isPlay) { return 0; }
+function send_bet(player) {
+    if (player.choice === undefined || !REMOTE.isPlay) { return 0; }
     let eid, b;
-    myBet['choice'] % 2 == 0 ? eid = 2 : eid = 5;
-    b = normalization(myBet['value']);
+    player.choice % 2 == 0 ? eid = 2 : eid = 5;
+    b = normalization(player.value);
     b = Math.max(b, 500);
-    let betMessage = shakeDisk.betMessage(eid, b);
+    let betMessage = MESSAGE_WS.bet(eid, b);
 
     console.log(JSON.stringify(betMessage));
     socket.send(JSON.stringify(betMessage));
@@ -84,91 +82,76 @@ function sendBet(myBet) {
 
 
 
-function socket_connect(socket_io) {
-    const socket = new WebSocket(shakeDisk.url);
+function socket_connect() {
+    var socket = new WebSocket(MESSAGE_WS.url);
 
     socket.onopen = function (event) {
         console.log('Kết nối WebSocket đã mở.');
-        socket.send(JSON.stringify(shakeDisk.loginMessage));
+        socket.send(JSON.stringify(MESSAGE_WS.login));
 
     };
 
     socket.onmessage = function (event) {
-
-        let data = JSON.parse(event.data);
-        //workspace
-        if (typeof data[1] === 'object') {
-            if ("plugins" in data[1]) {//
-                console.log("plugin->send HklMessage")
-                socket.send(JSON.stringify(shakeDisk.HklMessage));
-
-            } else if ("rt" in data[1]) { //endTime, getResult
-                rtCounter++;
-                timerCounter = -1;
-                if (rtCounter % 2 == 1) {
+        let received_data = JSON.parse(event.data)[1];
+        if (typeof received_data === 'object') {
+            if (received_data["plugins"]) {
+                socket.send(JSON.stringify(MESSAGE_WS.Hkl));
+            } else if (received_data["rt"]) {
+                //endTime, getResult
+                COUNTER.rt++;
+                COUNTER.timer = 0; //reset timer
+                if (COUNTER.rt % 2 == 1) {
                     return 0;
                 }
-                console.log("result:", data[1]["rt"])
-                let result = +data[1]["rt"];
-                if (result % 2 == myBet["choice"] % 2) {
-                    myProfitHistory.push(myBet["value"]);
+                let result5 = +received_data["rt"];
+                if (result5 % 2 == PLAYER.choice % 2) {
+                    HISTORY_PROFITS.player.push(PLAYER.value);
                 } else {
-                    myProfitHistory.push(-myBet["value"]);
+                    HISTORY_PROFITS.player.push(-PLAYER.value);
 
                 }
-                gameProfitHistory.push(profits[result]);
-                js2PtrendMess["content"] = gameProfitHistory 
-                if (js2PtrendMess["counter"]){
-                    socket_io.send(JSON.stringify(js2PtrendMess))
-                }
-                if (js2PprdMess["counter"]){
+                HISTORY_PROFITS.game.push(profits[result5]);
+                MESSAGE_IO.trend.content = HISTORY_PROFITS.game
+                MESSAGE_IO.prd.content = MESSAGE_IO.prd.content.concat(result5)
+                socket_io.send(JSON.stringify(MESSAGE_IO.trend))
+                socket_io.send(JSON.stringify(MESSAGE_IO.prd))
+                ROUND.profitList = []
 
-                    js2PprdMess["content"] = js2PprdMess["content"].concat(result);
-                }
-                js2PprdMess["counter"]+=1;
-                js2PtrendMess["counter"]+=1;
-                // console.log(js2PprdMess)
-                socket_io.send(JSON.stringify(js2PprdMess))
-                profitList = []
+                CHART.game = drawChart(HISTORY_PROFITS.game, "DOM_gameChart", CHART.game);
+                CHART.player = drawChart(HISTORY_PROFITS.player, "DOM_myChart", CHART.player);
 
-                gameChart = drawChart(gameProfitHistory, "DOM_gameChart", gameChart);
-                myChart = drawChart(myProfitHistory, "DOM_myChart", myChart);
-
-                document.getElementById(`profit${result}`).classList.add("isresult");
+                document.getElementById(`profit${result5}`).classList.add("isresult");
                 setTimeout(() => {
-                    document.getElementById(`profit${result}`).classList.remove("isresult");
-
+                    document.getElementById(`profit${result5}`).classList.remove("isresult");
                 }, 11000)
-            }
-            else if ("ets" in data[1]) { //betTime
-                timerCounter++;
-                if (timerCounter == 43) {
-                    let profitAvg = calcAvgList(profitList)
-                    myBet = makeChoie(profitAvg);
-                    sendBet(myBet);
-                    js2PprdMess["content"] = objList2Arr(profitList);
+            } else if (received_data["ets"]) {
+                //betTime
+                COUNTER.timer++;
+                if (COUNTER.timer == 43) {
+                    PLAYER = makeChoie(ROUND.profitList[ROUND.profitList.length - 1]);
+                    send_bet(PLAYER);
+                    MESSAGE_IO.prd.content = objList2Arr(ROUND.profitList);
 
                 }
                 //updateDOM
-                DOM_timer.style = `width: ${Math.floor(timerCounter * 100 / 50)}%`;
-                moneys.updateMoney(data[1]["ets"]);
+                DOM_timer.style = `width: ${Math.floor(COUNTER.timer * 100 / 50)}%`;
+                moneys.updateMoney(received_data["ets"]);
                 // moneys.updateDom();
                 profits.updateProfit();
                 profits.updateDom();
-                profitList.push(JSON.parse(JSON.stringify(profits)))
+                ROUND.profitList.push(JSON.parse(JSON.stringify(profits)))
 
-            }
-            else {
+            } else {
                 // console.log(data)
             }
-        //endworkspace
+            //endworkspace
         }
         else {
-            if (data[1] == true) {
-                socket.send(JSON.stringify(shakeDisk.infoMessage));
-                sendInterval = setInterval(() => {
-                    socket.send(JSON.stringify(shakeDisk.resultMessage(sendCounter)));
-                    sendCounter++;
+            if (received_data == true) {
+                socket.send(JSON.stringify(MESSAGE_WS.info));
+                var sendInterval = setInterval(() => {
+                    socket.send(JSON.stringify(MESSAGE_WS.result(COUNTER.send)));
+                    COUNTER.send++;
                 }, 2000)
 
             }
@@ -190,5 +173,5 @@ function socket_connect(socket_io) {
 }
 
 
-var socket_io =  socket_io_connect();
-var socket =  socket_connect(socket_io);
+
+socket_connect();

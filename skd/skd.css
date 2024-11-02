@@ -11,13 +11,13 @@
 /*DOM_profits*/
 
 .DOM_profits {
-    width: 50%;
+    width: 70%;
     background-color: rgb(145, 137, 137);
     border-bottom: 1px solid black;
     position: fixed;
     top: 0;
     left: 0;
-    display: block;
+    display: none;
 }
 
 .profit_top,
@@ -73,7 +73,7 @@
     height: 5px;
     background-color: #4caf50;
     /* Màu xanh */
-    transition: width 0.3s ease;
+    transition: width 0.5s ease;
 }
 
 .ip-max {
