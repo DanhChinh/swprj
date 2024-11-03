@@ -17,7 +17,7 @@ def handle_message(msg):
     if obj["header"] == "trend":
         server_data.trend = data
     else:
-        if len(data) == 302:
+        if len(data) == 274:
             server_data.prd.append(data)
         else:
 
