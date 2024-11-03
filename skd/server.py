@@ -14,11 +14,14 @@ server_data = Data()
 def handle_message(msg):
     obj = json.loads(msg)
     data = obj["content"]
-    print(np.array(data))
-    if obj["header"] == "for_prd":
-        server_data.prd = np.append(server_data.prd, data)
-    else:
+    if obj["header"] == "trend":
         server_data.trend = data
+    else:
+        if len(data) == 302:
+            server_data.prd.append(data)
+        else:
+
+            print("pass data", len(data))
 
 @socketio.on('connect')
 def handle_connect():
@@ -27,12 +30,10 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    # print("prd",data_prd)
-    # print("trend",data_trend)
     saveFile("./data/prd/prd.txt", server_data.prd)
-    if len(server_data.trend)>10:
-        print("save server_data.trend")
-        saveFile(f"./data/trend/{getTextTime()}.txt", server_data.trend)
+    # if len(server_data.trend)>10:
+    #     print("save server_data.trend")
+    saveFile(f"./data/trend/{getTextTime()}.txt", server_data.trend)
     print('Client disconnected')
 
 

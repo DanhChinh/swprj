@@ -105,14 +105,16 @@ function socket_connect() {
                 }
                 let result5 = +received_data["rt"];
                 if (result5 % 2 == PLAYER.choice % 2) {
-                    HISTORY_PROFITS.player.push(PLAYER.value);
+                    HISTORY_PROFITS.player.push(PLAYER.value)
                 } else {
-                    HISTORY_PROFITS.player.push(-PLAYER.value);
+                    HISTORY_PROFITS.player.push(-PLAYER.value)
 
                 }
-                HISTORY_PROFITS.game.push(profits[result5]);
+                console.log("ROUND.profitList",ROUND.profitList)
+
+                HISTORY_PROFITS.game.push(profits[result5])
                 MESSAGE_IO.trend.content = HISTORY_PROFITS.game
-                MESSAGE_IO.prd.content = MESSAGE_IO.prd.content.concat(result5)
+                MESSAGE_IO.prd.content.push(result5)
                 socket_io.send(JSON.stringify(MESSAGE_IO.trend))
                 socket_io.send(JSON.stringify(MESSAGE_IO.prd))
                 ROUND.profitList = []
@@ -127,10 +129,12 @@ function socket_connect() {
             } else if (received_data["ets"]) {
                 //betTime
                 COUNTER.timer++;
-                if (COUNTER.timer == 43) {
+                if (COUNTER.timer == 40) {
+                    console.log("time: 43")
                     PLAYER = makeChoie(ROUND.profitList[ROUND.profitList.length - 1]);
                     send_bet(PLAYER);
                     MESSAGE_IO.prd.content = objList2Arr(ROUND.profitList);
+                    console.log("MESSAGE_IO.prd.content",MESSAGE_IO.prd.content)
 
                 }
                 //updateDOM
@@ -144,7 +148,6 @@ function socket_connect() {
             } else {
                 // console.log(data)
             }
-            //endworkspace
         }
         else {
             if (received_data == true) {
