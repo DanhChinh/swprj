@@ -4,6 +4,19 @@ from flask_cors import CORS
 import json
 from server_handle import *
 import numpy as np
+
+from sklearn.tree import DecisionTreeClassifier
+model = DecisionTreeClassifier()
+def make_prd(data, X_test):
+    X_train = data[:, :-1]
+    y_train = data[:, -1]
+    # print("make_prd")
+    # print(X_train)
+    # print(y_train)
+    # print(X_test)
+    model.fit(X_train, y_train)
+    return int(model.predict([X_test])[0])
+
 app = Flask(__name__)
 CORS(app)  # Bật CORS cho toàn bộ ứng dụng
 socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả nguồn
@@ -16,12 +29,16 @@ def handle_message(msg):
     data = obj["content"]
     if obj["header"] == "trend":
         server_data.trend = data
-    else:
+    elif obj["header"] == "prd":
         if len(data) == 274:
             server_data.prd.append(data)
         else:
 
             print("pass data", len(data))
+    else:
+        prd = make_prd(np.array(server_data.prd), np.array(data))
+        print("prd", prd)
+        emit('response', json.dumps({"content": prd}))
 
 @socketio.on('connect')
 def handle_connect():

@@ -104,13 +104,14 @@ function socket_connect() {
                     return 0;
                 }
                 let result5 = +received_data["rt"];
+                console.log(result5)
                 if (result5 % 2 == PLAYER.choice % 2) {
                     HISTORY_PROFITS.player.push(PLAYER.value)
                 } else {
                     HISTORY_PROFITS.player.push(-PLAYER.value)
 
                 }
-                console.log("ROUND.profitList",ROUND.profitList)
+                // console.log("ROUND.profitList",ROUND.profitList)
 
                 HISTORY_PROFITS.game.push(profits[result5])
                 MESSAGE_IO.trend.content = HISTORY_PROFITS.game
@@ -131,10 +132,14 @@ function socket_connect() {
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
                     console.log("time: 43")
-                    PLAYER = makeChoie(ROUND.profitList[ROUND.profitList.length - 1]);
-                    send_bet(PLAYER);
-                    MESSAGE_IO.prd.content = objList2Arr(ROUND.profitList);
-                    console.log("MESSAGE_IO.prd.content",MESSAGE_IO.prd.content)
+                    let arr2d = objList2Arr(ROUND.profitList);
+                    MESSAGE_IO.prd.content = arr2d;
+                    MESSAGE_IO.dt.content = arr2d;
+                    socket_io.send(JSON.stringify(MESSAGE_IO.dt));
+
+                    // PLAYER = makeChoie(ROUND.profitList[ROUND.profitList.length - 1]);
+                    // send_bet(PLAYER);
+                    // console.log("MESSAGE_IO.prd.content",MESSAGE_IO.prd.content)
 
                 }
                 //updateDOM
