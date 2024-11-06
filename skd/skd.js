@@ -10,7 +10,7 @@ var MESSAGE_WS = {
 
 }
 
-
+var sendInterval;
 var moneys = {
     0: 0,
     1: 0,
@@ -157,7 +157,7 @@ function socket_connect() {
         else {
             if (received_data == true) {
                 socket.send(JSON.stringify(MESSAGE_WS.info));
-                var sendInterval = setInterval(() => {
+                sendInterval = setInterval(() => {
                     socket.send(JSON.stringify(MESSAGE_WS.result(COUNTER.send)));
                     COUNTER.send++;
                 }, 2000)

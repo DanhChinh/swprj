@@ -9,6 +9,7 @@ function drawChart(dataArray, domId, charVariable) {
         cumulativeSum.push(newSum);
         return newSum;
     }, 0);
+    let backgroundColors = dataToPlot.map(value => value < 0 ? 'rgba(255, 99, 132, 0.2)' : 'rgba(54, 162, 235, 0.2)');
 
     // Nếu biểu đồ đã được khởi tạo, cập nhật dữ liệu
     if (charVariable) {
@@ -26,7 +27,7 @@ function drawChart(dataArray, domId, charVariable) {
                 datasets: [{
                     label: 'Giá trị',
                     data: dataToPlot,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    backgroundColor: backgroundColors,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1,
                 }, {
@@ -34,6 +35,7 @@ function drawChart(dataArray, domId, charVariable) {
                     data: cumulativeSum,
                     type: 'line', // Đường line cho cộng dồn
                     fill: false,
+                    tension:1,
                     borderColor: 'rgba(255, 99, 132, 1)',
                     tension: 0.1,
                 }]
