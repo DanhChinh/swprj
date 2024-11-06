@@ -63,6 +63,9 @@ var profits = {
             }
 
         }
+    },
+    toArray: function(){
+        return [this[0], this[1], this[2], this[3], this[4]]
     }
 }
 
@@ -96,50 +99,61 @@ function socket_connect() {
         if (typeof received_data === 'object') {
             if (received_data["plugins"]) {
                 socket.send(JSON.stringify(MESSAGE_WS.Hkl));
-            } else if (received_data["rt"]) {
+            } 
+            else if (received_data["rt"]) {
                 //endTime, getResult
-                COUNTER.rt++;
-                COUNTER.timer = 0; //reset timer
+                COUNTER.rt++; 
                 if (COUNTER.rt % 2 == 1) {
                     return 0;
                 }
+                //_________________________
+                COUNTER.timer = 0;
                 let result5 = +received_data["rt"];
-                console.log(result5)
+                console.log("result5", result5)
                 if (result5 % 2 == PLAYER.choice % 2) {
                     HISTORY_PROFITS.player.push(PLAYER.value)
                 } else {
                     HISTORY_PROFITS.player.push(-PLAYER.value)
 
                 }
-                // console.log("ROUND.profitList",ROUND.profitList)
 
                 HISTORY_PROFITS.game.push(profits[result5])
-                MESSAGE_IO.trend.content = HISTORY_PROFITS.game
-                MESSAGE_IO.prd.content.push(result5)
-                socket_io.send(JSON.stringify(MESSAGE_IO.trend))
-                socket_io.send(JSON.stringify(MESSAGE_IO.prd))
-                ROUND.profitList = []
+                if(messageIO_content){
+                    messageIO_content.push(result5)
+                    // console.log(messageIO_content)
+                    socket_io.send(JSON.stringify({
+                        "header":"add_data",
+                        "content":messageIO_content
+                    }));
+                }
+                PROFITS_LIST_2D = []
 
                 CHART.game = drawChart(HISTORY_PROFITS.game, "DOM_gameChart", CHART.game);
                 CHART.player = drawChart(HISTORY_PROFITS.player, "DOM_myChart", CHART.player);
+                console.log("_______________________________________________________")
 
                 document.getElementById(`profit${result5}`).classList.add("isresult");
                 setTimeout(() => {
                     document.getElementById(`profit${result5}`).classList.remove("isresult");
                 }, 11000)
-            } else if (received_data["ets"]) {
+            } 
+            else if (received_data["ets"]) {
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
-                    console.log("time: 43")
-                    let arr2d = objList2Arr(ROUND.profitList);
-                    MESSAGE_IO.prd.content = arr2d;
-                    MESSAGE_IO.dt.content = arr2d;
-                    socket_io.send(JSON.stringify(MESSAGE_IO.dt));
+                    profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
+                    messageIO_content = make_content(
+                        JSON.parse(JSON.stringify(PROFITS_LIST_2D)), 
+                        adjustArray(JSON.parse(JSON.stringify(HISTORY_PROFITS.game)))
+                    )
+                    // console.log(messageIO_content)
 
-                    // PLAYER = makeChoie(ROUND.profitList[ROUND.profitList.length - 1]);
-                    // send_bet(PLAYER);
-                    // console.log("MESSAGE_IO.prd.content",MESSAGE_IO.prd.content)
+                    if(messageIO_content){
+                        socket_io.send(JSON.stringify({
+                            "header":"for_prd",
+                            "content":messageIO_content
+                        }));
+                    }
 
                 }
                 //updateDOM
@@ -148,9 +162,10 @@ function socket_connect() {
                 // moneys.updateDom();
                 profits.updateProfit();
                 profits.updateDom();
-                ROUND.profitList.push(JSON.parse(JSON.stringify(profits)))
+                PROFITS_LIST_2D.push(profits.toArray())
 
-            } else {
+            } 
+            else {
                 // console.log(data)
             }
         }

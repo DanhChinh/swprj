@@ -7,6 +7,25 @@ function Message(header, content, tmp) {
     let counter = 0;
     return { counter, header, content, tmp }
 }
+function makeChoie(profits) {
+    let p1 = profits[1];
+    let p2 = profits[2];
+    let p3 = profits[3];
+    // let sortArr = [p1, p2, p3].sort((a,b)=>a-b);
+    let value = Math.max(p1, p2, p3);
+    let choice = undefined;
+    for (let i = 1; i <= 3; i++) {
+        if (profits[i] == value) {
+            choice = i;
+        }
+    }
+    return {
+        "choice": choice,
+        "value": value
+    }
+
+
+}
 
 var calcAvgList = function (list) {
     let list_d3 = list.slice(-3);
@@ -29,39 +48,45 @@ function objList2Arr(objList) {
     return arr;
 }
 
-function makeChoie(profits) {
-    let p1 = profits[1];
-    let p2 = profits[2];
-    let p3 = profits[3];
-    // let sortArr = [p1, p2, p3].sort((a,b)=>a-b);
-    let value = Math.max(p1, p2, p3);
-    let choice = undefined;
-    for (let i = 1; i <= 3; i++) {
-        if (profits[i] == value) {
-            choice = i;
+function adjustArray(arr) {
+    if (arr.length > 10) {
+        // Trả về 10 phần tử cuối của mảng nếu kích thước mảng lớn hơn 10
+        return arr.slice(-10);
+    } else {
+        // Thêm 0 vào đầu mảng cho đến khi mảng có đủ 10 phần tử
+        while (arr.length < 10) {
+            arr.unshift(0);
         }
+        return arr;
     }
-    return {
-        "choice": choice,
-        "value": value
-    }
-
-
 }
 
 
+function make_content(prfL2D, hsPrf1D ) {
+    if (prfL2D.length != 39){
+        console.log("not fullsize")
+        return undefined;
+    }
+    let now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    return [hours, minutes,...hsPrf1D, ...prfL2D.flat()]
 
+
+    // return {
+    //     hours,
+    //     minutes,
+    //     prfL2D,
+    //     hsPrf1D,
+    //     isFullSize     
+    // }
+}
 
 var HISTORY_PROFITS = {
     "game": [],
     "player": []
 }
 
-var ROUND = {
-    "profitList": [],
-    "moneys45s": [],
-    "moneys45sList": []
-}
 var COUNTER = {
     "send": 2,
     "round": 0,
@@ -73,17 +98,6 @@ var PLAYER = {
     "value": 0
 }
 
-var MESSAGE_IO = {
-    "trend": {
-        "header": "trend",
-        "content": []
-    },
-    "prd": {
-        "header": "prd",
-        "content": []
-    },
-    "dt":{
-        "header": "dt",
-        "content": []
-    }
-}
+var PROFITS_LIST_2D = []
+var messageIO_content = undefined
+var profit_s40 = []

@@ -3,11 +3,8 @@ function socket_io_connect() {
 
     socket_io.on('response', function (data) {
         let received_data = JSON.parse(data);
-        console.log(received_data)
-        PLAYER = makeChoie(ROUND.profitList[ROUND.profitList.length - 1]);
-        console.log(PLAYER.choice, PLAYER.value)
         PLAYER.choice = received_data.content
-        PLAYER.value = Math.abs(profits[received_data.content])
+        PLAYER.value = Math.abs(profit_s40[received_data.content])
         console.log(PLAYER.choice, PLAYER.value)
 
         send_bet(PLAYER);

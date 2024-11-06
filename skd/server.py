@@ -14,19 +14,25 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả ngu�
 @socketio.on('message')
 def handle_message(msg):
     obj = json.loads(msg)
-    data = obj["content"]    
-
-    if obj["header"] == "trend":
-        # server_data.trend = data
-        pass
-    elif obj["header"] == "prd":
-        if len(data) == 274:
-            DecisionTree.addDt(data)
-        else:
-            print("pass data", len(data))
+    data = obj["content"]
+    if obj["header"] == "add_data":
+        data_class.addDt(data)
+        for model in model_list:
+            model.checkResult(data[-1])
+        print("________________")
     else:
-        prd = DecisionTree.makePrd(data)
+        data_class.split()
+        max_percent = 0
+        prd = None
+        for model in model_list:
+            model.makePrd(data_class.x_train, data_class.y_train, data)
+            print(model.persent, model.prd, model.name)
+            max_percent = max(model.persent, max_percent)
+            if model.persent == max_percent:
+                prd = model.prd
+
         emit('response', json.dumps({"content": prd}))
+        pass
 
 @socketio.on('connect')
 def handle_connect():
@@ -35,7 +41,7 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    saveFile("./data/prd/prd.txt", DecisionTree.data)
+    saveFile("./data/prd/prd.txt", DecisionTree.npdata)
     # saveFile(f"./data/trend/{getTextTime()}.txt", server_data.trend)
     print('Client disconnected')
 
