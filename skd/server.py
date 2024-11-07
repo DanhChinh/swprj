@@ -22,13 +22,13 @@ def handle_message(msg):
         print("________________")
     else:
         data_class.split()
-        max_percent = 0
+        max_score = -99999
         prd = None
         for model in model_list:
             model.makePrd(data_class.x_train, data_class.y_train, data)
-            print(model.persent, model.prd, model.name)
-            max_percent = max(model.persent, max_percent)
-            if model.persent == max_percent:
+            print(model.score, model.prd, model.name)
+            max_score = max(model.score, max_score)
+            if model.score == max_score:
                 prd = model.prd
 
         emit('response', json.dumps({"content": prd}))
@@ -41,7 +41,7 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    saveFile("./data/prd/prd.txt", DecisionTree.npdata)
+    data_class.save()
     # saveFile(f"./data/trend/{getTextTime()}.txt", server_data.trend)
     print('Client disconnected')
 

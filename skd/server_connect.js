@@ -4,7 +4,12 @@ function socket_io_connect() {
     socket_io.on('response', function (data) {
         let received_data = JSON.parse(data);
         PLAYER.choice = received_data.content
-        PLAYER.value = Math.abs(profit_s40[received_data.content])
+        let index = PLAYER.choice;
+        if(index %2 == 0){
+            PLAYER.value = Math.abs(profit_s40[2])
+        }else{
+            PLAYER.value = Math.abs(profit_s40[1]+ profit_s40[3])
+        }
         console.log(PLAYER.choice, PLAYER.value)
 
         send_bet(PLAYER);

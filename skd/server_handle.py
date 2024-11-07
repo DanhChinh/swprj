@@ -18,22 +18,17 @@ class PRD:
         self.model = model
         self.name = name
         self.prd = None
-        self.true = 0
-        self.false = 0
-        self.persent = 0
+        self.score =0
     def makePrd(self, x_train, y_train, x_test):
         self.model.fit(x_train, y_train)
         self.prd = int(self.model.predict([x_test])[0])
     def checkResult(self, result):
         if not  self.prd:
             return 0
-        if self.prd%2 == result%2:
-            self.true += 1
+        if self.prd == result:
+            self.score += 1
         else:
-            self.false += 1
-        self.persent = self.true/(self.true + self.false)
-    def show(self):
-        print(self.true, self.false, self.persent, self.name)
+            self.score -= 1
 
 
 class DATA:
