@@ -1,5 +1,5 @@
 
-
+var socket;
 var MESSAGE_WS = {
     url: "wss://xdtl.azhkthg1.net/websocket",
     login: [1, "ShakeDisk", "SC_y2hpbmhz", "ZGFuaA==", { "info": "{\"ipAddress\":\"2405:4802:21c:6bc0:d3da:aa86:9d83:365c\",\"userId\":\"7fdfa57d-8014-4140-98cc-0e8698fe1e92\",\"username\":\"SC_y2hpbmhz\",\"timestamp\":1729838405701}", "signature": "3B40174A7E8C19EC6CF30400FACABA4BB95A076093D0E48CD25B12479BC62D21B7059D9DE8E0A55E7FD4F6BC586EAC104A5FF89214793505715B695C615A18669334C18DBB39925E4C6AA36693998A06C541E15C97359324DB55CB959E6017B6C5445A74C288DB70481D348996716D419D69916AB884C3095F2768B26F8B24DE", "pid": 4, "subi": true }],
@@ -19,7 +19,6 @@ var moneys = {
     4: 0,
     5: 0,
     "total": 0,
-
     updateMoney: function (arrayData) {
         this["total"] = 0;
         for (let i = 0; i < 6; i++) {
@@ -41,7 +40,6 @@ var profits = {
     2: 0,
     3: 0,
     4: 0,
-    5: 0,
     "maxprofit": -999999999,
     updateProfit: function () {
         this[0] = moneys["total"] - (moneys[0] * 16 + moneys[2] * 2);
@@ -49,8 +47,7 @@ var profits = {
         this[2] = moneys["total"] - moneys[2] * 2;
         this[1] = moneys["total"] - (moneys[1] * 4 + moneys[5] * 2);
         this[3] = moneys["total"] - (moneys[3] * 4 + moneys[5] * 2);
-        this[5] = moneys["total"] - moneys[5] * 2 - Math.floor((moneys[1] * 4 + moneys[3] * 4) / 2);
-        this["maxprofit"] = Math.max(this[0], this[1], this[2], this[3], this[4], this[5]);
+        this["maxprofit"] = Math.max(this[0], this[1], this[2], this[3], this[4]);
     },
     updateDom: function () {
         for (let i = 0; i < 6; i++) {
@@ -73,7 +70,7 @@ function send_bet(player) {
     if (player.choice === undefined || !REMOTE.isPlay) { return 0; }
     let eid, b;
     player.choice % 2 == 0 ? eid = 2 : eid = 5;
-    b = normalization(player.value);
+    b = normalization(player.value/5000);
     b = Math.max(b, 500);
     let betMessage = MESSAGE_WS.bet(eid, b);
 
@@ -86,7 +83,7 @@ function send_bet(player) {
 
 
 function socket_connect() {
-    var socket = new WebSocket(MESSAGE_WS.url);
+    socket = new WebSocket(MESSAGE_WS.url);
 
     socket.onopen = function (event) {
         console.log('Kết nối WebSocket đã mở.');

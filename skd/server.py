@@ -16,6 +16,7 @@ def handle_message(msg):
     obj = json.loads(msg)
     data = obj["content"]
     if obj["header"] == "add_data":
+        print("rs:",data[-1])
         data_class.addDt(data)
         for model in model_list:
             model.checkResult(data[-1])
@@ -26,9 +27,10 @@ def handle_message(msg):
         prd = None
         for model in model_list:
             model.makePrd(data_class.x_train, data_class.y_train, data)
-            print(model.score, model.prd, model.name)
-            max_score = max(model.score, max_score)
-            if model.score == max_score:
+            score_trend = model.getTrend()
+            print(score_trend, model.prd, model.name)
+            max_score = max(max_score, score_trend)
+            if score_trend == max_score:
                 prd = model.prd
 
         emit('response', json.dumps({"content": prd}))

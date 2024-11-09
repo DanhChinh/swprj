@@ -8,7 +8,7 @@ function socket_io_connect() {
         if(index %2 == 0){
             PLAYER.value = Math.abs(profit_s40[2])
         }else{
-            PLAYER.value = Math.abs(profit_s40[1]+ profit_s40[3])
+            PLAYER.value = Math.floor(Math.abs(profit_s40[1])+Math.abs(profit_s40[3])/2)
         }
         console.log(PLAYER.choice, PLAYER.value)
 

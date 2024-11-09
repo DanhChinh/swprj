@@ -1,6 +1,10 @@
-function normalization(gameValue, gameMax, myMax) {
-    let myValue = myMax * gameValue / gameMax;
-    return Math.round(myValue / 500) * 500;
+// function normalization(gameValue, gameMax, myMax) {
+//     let myValue = myMax * gameValue / gameMax;
+//     return Math.round(myValue / 500) * 500;
+// }
+function normalization(value){
+    
+    return Math.round(value / 500) * 500;
 }
 var formatn = number => numeral(number).format('0,0');
 function Message(header, content, tmp) {
