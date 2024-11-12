@@ -1,5 +1,5 @@
 import numpy as np
-import os
+import os, json
 from datetime import datetime
 import time
 from sklearn.tree import DecisionTreeClassifier
@@ -12,7 +12,13 @@ from sklearn.neighbors import KNeighborsRegressor
 # from sklearn.preprocessing import MinMaxScaler
 # scaler = MinMaxScaler()
 
-        
+def loadsJs(path):
+    with open(path, 'r') as file:
+        data = json.load(file)
+    return data
+def saveJs(path, data):
+    with open(path, 'w') as file:
+        json.dump(data, file, indent=4) 
 class PRD:
     def __init__(self, model, name=""):
         self.model = model
@@ -41,28 +47,21 @@ class PRD:
 
 class DATA:
     def __init__(self):
-        self.path = "./data/prd/prd.txt"
-        self.npdata = 0 #np.loadtxt(self.path, dtype=int)
-        self.x_train = []
-        self.y_train = []
-    def split(self):
-        self.x_train = self.npdata[:, :-1]
-        self.y_train = self.npdata[:, -1]
-        #scaler
-        # self.x_train = scaler.fit_transform(self.x_train)
+        self.path = "./data/data.json"
+        self.jsData = loadsJs(self.path)
     def addDt(self, dt):
-        self.npdata = np.append(self.npdata, [dt], axis=0)
+        self.jsData.append(dt)
     def save(self):
-        np.savetxt(self.path, self.npdata, fmt='%d')
+        saveJs(self.path, self.jsData)
 
 data_class = DATA()
 
-m1 = PRD(DecisionTreeClassifier(), "DecisionTreeClassifier")
-m2 = PRD(DecisionTreeRegressor(), "DecisionTreeRegressor")
-# m3 = PRD(LinearRegression(), "LinearRegression")
-# m4 = PRD(RandomForestRegressor(), "RandomForestRegressor")
-m5 = PRD(SVR(), "SVR")
-m6 = PRD(KNeighborsRegressor(n_neighbors=3), "KNeighborsRegressor")
-# m7 = PRD(MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000))
+# m1 = PRD(DecisionTreeClassifier(), "DecisionTreeClassifier")
+# m2 = PRD(DecisionTreeRegressor(), "DecisionTreeRegressor")
+# # m3 = PRD(LinearRegression(), "LinearRegression")
+# # m4 = PRD(RandomForestRegressor(), "RandomForestRegressor")
+# m5 = PRD(SVR(), "SVR")
+# m6 = PRD(KNeighborsRegressor(n_neighbors=3), "KNeighborsRegressor")
+# # m7 = PRD(MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000))
 
-model_list = [m1, m2, m5, m6]
+# model_list = [m1, m2, m5, m6]

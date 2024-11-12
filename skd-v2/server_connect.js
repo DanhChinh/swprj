@@ -1,5 +1,5 @@
 function socket_io_connect() {
-    let socket_io = io('http://localhost:5000');
+    socket_io = io('http://localhost:5000');
 
     socket_io.on('response', function (data) {
         let received_data = JSON.parse(data);
@@ -23,6 +23,5 @@ function socket_io_connect() {
     socket_io.on('disconnect', function () {
         console.log('Disconnected from server');
     });
-    return socket_io;
 }
-var socket_io = socket_io_connect();
+socket_io_connect();

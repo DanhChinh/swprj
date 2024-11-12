@@ -22,3 +22,7 @@ DOM_isShowProfits.onclick = (e) => {
 
 }
 
+DOM_stop.onclick = ()=>{
+    console.log("Dong ket noi ws boi nguoi dung");
+    socket.close();
+}

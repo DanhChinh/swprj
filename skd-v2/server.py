@@ -15,27 +15,22 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # Cho phép tất cả ngu�
 def handle_message(msg):
     obj = json.loads(msg)
     data = obj["content"]
-    print(data)
-    return 0
     if obj["header"] == "add_data":
-        print("rs:",data[-1])
         data_class.addDt(data)
-        for model in model_list:
-            model.checkResult(data[-1])
         print("________________")
     else:
-        data_class.split()
-        max_score = -99999
-        prd = None
-        for model in model_list:
-            model.makePrd(data_class.x_train, data_class.y_train, data)
-            score_trend = model.getTrend()
-            print(score_trend, model.prd, model.name)
-            max_score = max(max_score, score_trend)
-            if score_trend == max_score:
-                prd = model.prd
+        # data_class.split()
+        # max_score = -99999
+        # prd = None
+        # for model in model_list:
+        #     model.makePrd(data_class.x_train, data_class.y_train, data)
+        #     score_trend = model.getTrend()
+        #     print(score_trend, model.prd, model.name)
+        #     max_score = max(max_score, score_trend)
+        #     if score_trend == max_score:
+        #         prd = model.prd
 
-        emit('response', json.dumps({"content": prd}))
+        # emit('response', json.dumps({"content": prd}))
         pass
 
 @socketio.on('connect')

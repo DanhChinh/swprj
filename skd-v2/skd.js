@@ -1,5 +1,4 @@
 
-var socket;
 var MESSAGE_WS = {
     url: "wss://xdtl.azhkthg1.net/websocket",
     login: [1, "ShakeDisk", "SC_y2hpbmhz", "ZGFuaA==", { "info": "{\"ipAddress\":\"2405:4802:21c:6bc0:d3da:aa86:9d83:365c\",\"userId\":\"7fdfa57d-8014-4140-98cc-0e8698fe1e92\",\"username\":\"SC_y2hpbmhz\",\"timestamp\":1729838405701}", "signature": "3B40174A7E8C19EC6CF30400FACABA4BB95A076093D0E48CD25B12479BC62D21B7059D9DE8E0A55E7FD4F6BC586EAC104A5FF89214793505715B695C615A18669334C18DBB39925E4C6AA36693998A06C541E15C97359324DB55CB959E6017B6C5445A74C288DB70481D348996716D419D69916AB884C3095F2768B26F8B24DE", "pid": 4, "subi": true }],
@@ -10,7 +9,6 @@ var MESSAGE_WS = {
 
 }
 
-var sendInterval;
 var moneys = {
     0: 0,
     1: 0,
@@ -96,27 +94,25 @@ function socket_connect() {
         if (typeof received_data === 'object') {
             if (received_data["plugins"]) {
                 socket.send(JSON.stringify(MESSAGE_WS.Hkl));
-            } 
-            else if (received_data["rt"]) {
+            }else if (received_data["gr"]){
+                console.log(received_data["gr"])
+                GAME_HISTORY52 = received_data["gr"];
+            }
+            else if (received_data["rt"] && received_data["dices"]) {
                 //endTime, getResult
-                COUNTER.rt++; 
-                if (COUNTER.rt % 2 == 1) {
-                    return 0;
-                }
-                //_________________________
+
+
                 COUNTER.timer = 0;
                 let result5 = +received_data["rt"];
+                GAME_HISTORY52.shift();
+                GAME_HISTORY52.push(result5)
+
                 console.log("result5", result5)
-                if (result5 % 2 == PLAYER.choice % 2) {
-                    HISTORY_PROFITS.player.push(PLAYER.value)
-                } else {
-                    HISTORY_PROFITS.player.push(-PLAYER.value)
 
-                }
-
+                HISTORY_PROFITS.player.push((result5%2 == PLAYER.choice%2) ? PLAYER.value : -PLAYER.value)
                 HISTORY_PROFITS.game.push(profits[result5])
                 if(messageIO_content){
-                    messageIO_content.push(result5)
+                    messageIO_content["result"]= result5;
                     console.log(messageIO_content)
                     socket_io.send(JSON.stringify({
                         "header":"add_data",
@@ -124,6 +120,7 @@ function socket_connect() {
                     }));
                 }
                 PROFITS_LIST_2D = []
+                PLAYER_LIST_2D = []
 
                 CHART.game = drawChart(HISTORY_PROFITS.game, "DOM_gameChart", CHART.game);
                 CHART.player = drawChart(HISTORY_PROFITS.player, "DOM_myChart", CHART.player);
@@ -135,14 +132,14 @@ function socket_connect() {
                 }, 11000)
             } 
             else if (received_data["ets"]) {
-                console.log(received_data)
+                // console.log(received_data)
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
-                    profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
                     messageIO_content = make_content(
-                        JSON.parse(JSON.stringify(PROFITS_LIST_2D)), 
-                        adjustArray(JSON.parse(JSON.stringify(HISTORY_PROFITS.game)))
+                        JSON.parse(JSON.stringify(PROFITS_LIST_2D)),
+                        JSON.parse(JSON.stringify(PLAYER_LIST_2D)),
+                        JSON.parse(JSON.stringify(GAME_HISTORY52))
                     )
                     // console.log(messageIO_content)
 
@@ -157,11 +154,10 @@ function socket_connect() {
                 //updateDOM
                 DOM_timer.style = `width: ${Math.floor(COUNTER.timer * 100 / 50)}%`;
                 moneys.updateMoney(received_data["ets"]);
-                // moneys.updateDom();
                 profits.updateProfit();
                 profits.updateDom();
-                PROFITS_LIST_2D.push(profits.toArray())
-
+                PROFITS_LIST_2D.push(profits.toArray());
+                PLAYER_LIST_2D.push(received_data["ps"])
             } 
             else {
                 // console.log(data)

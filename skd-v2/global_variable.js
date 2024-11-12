@@ -66,24 +66,54 @@ function adjustArray(arr) {
 }
 
 
-function make_content(prfL2D, hsPrf1D ) {
-    if (prfL2D.length != 39){
+function make_content(PROFITS_LIST_2D, PLAYER_LIST_2D, history52) {
+    if (PROFITS_LIST_2D.length != 39){
         console.log("not fullsize")
-        return undefined;
+        return null;
     }
     let now = new Date();
     let hours = now.getHours();
-    let minutes = now.getMinutes();
-    return [hours, minutes,...hsPrf1D, ...prfL2D.flat()]
+    let playerDict = {}
+    let PLAYER_LIST = PLAYER_LIST_2D.flat();
+    PLAYER_LIST.forEach(player=>{
+        let dn = player.dn;
+        let m = +player.m;
+        let eid = +player.b[0].eid;
+        let v = +player.b[0].v;
+        if(dn in playerDict){
+            playerDict[dn][eid]+=v;
+            playerDict[dn]["m"] = m;
+            
+        }else{
+            playerDict[dn] = {
+                "m": m,
+                0:0,
+                1:0,
+                2:0,
+                3:0,
+                4:0,
+                5:0
+            }
+            playerDict[dn][eid] = v;
+
+        }
+    })
+    let arrSort = [];
+    for (let key in  playerDict){
+        let obj = playerDict[key];
+        obj.dn = key;
+        arrSort.push(obj)
+    }
+    arrSort = arrSort.sort((a, b) => a.m - b.m);
+    // console.log("playerDict",playerDict);
+    // console.log("arrSort",arrSort);
+
+    let profitS =  PROFITS_LIST_2D.flat();
+    let userS = arrSort;
+
+    return {hours, profitS, userS, history52}
 
 
-    // return {
-    //     hours,
-    //     minutes,
-    //     prfL2D,
-    //     hsPrf1D,
-    //     isFullSize     
-    // }
 }
 
 var HISTORY_PROFITS = {
@@ -94,8 +124,8 @@ var HISTORY_PROFITS = {
 var COUNTER = {
     "send": 2,
     "round": 0,
-    "rt": 0,
-    "timer": 0
+    "timer": 0,
+    "isEnd":false
 }
 var PLAYER = {
     "choice": undefined,
@@ -103,5 +133,11 @@ var PLAYER = {
 }
 
 var PROFITS_LIST_2D = []
+var PLAYER_LIST_2D =[]
+var GAME_HISTORY52 = []
 var messageIO_content = undefined
 var profit_s40 = []
+
+var socket;
+var socket_io;
+var sendInterval;
