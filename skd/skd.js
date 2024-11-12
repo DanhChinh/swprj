@@ -117,7 +117,7 @@ function socket_connect() {
                 HISTORY_PROFITS.game.push(profits[result5])
                 if(messageIO_content){
                     messageIO_content.push(result5)
-                    // console.log(messageIO_content)
+                    console.log(messageIO_content)
                     socket_io.send(JSON.stringify({
                         "header":"add_data",
                         "content":messageIO_content
@@ -135,6 +135,7 @@ function socket_connect() {
                 }, 11000)
             } 
             else if (received_data["ets"]) {
+                console.log(received_data)
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
