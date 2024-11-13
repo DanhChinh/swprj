@@ -18,6 +18,8 @@ def handle_message(msg):
     if obj["header"] == "add_data":
         data_class.addDt(data)
         print("________________")
+    elif obj["header"] == "save":
+        data_class.save()
     else:
         # data_class.split()
         # max_score = -99999

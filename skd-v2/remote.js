@@ -22,7 +22,10 @@ DOM_isShowProfits.onclick = (e) => {
 
 }
 
-DOM_stop.onclick = ()=>{
-    console.log("Dong ket noi ws boi nguoi dung");
-    socket.close();
-}
+DOM_connectWs.onclick = ()=> socket.close();
+DOM_connectWsIO.onclick = ()=> socket_io.close();
+
+DOM_save.onclick = () => socket_io.send(JSON.stringify({
+    "header":"save",
+    "content":""
+}));

@@ -95,7 +95,7 @@ function socket_connect() {
             if (received_data["plugins"]) {
                 socket.send(JSON.stringify(MESSAGE_WS.Hkl));
             }else if (received_data["gr"]){
-                console.log(received_data["gr"])
+                console.log("start:",received_data["gr"])
                 GAME_HISTORY52 = received_data["gr"];
             }
             else if (received_data["rt"] && received_data["dices"]) {
@@ -107,13 +107,13 @@ function socket_connect() {
                 GAME_HISTORY52.shift();
                 GAME_HISTORY52.push(result5)
 
-                console.log("result5", result5)
+                console.log("End round:", result5)
 
                 HISTORY_PROFITS.player.push((result5%2 == PLAYER.choice%2) ? PLAYER.value : -PLAYER.value)
                 HISTORY_PROFITS.game.push(profits[result5])
                 if(messageIO_content){
                     messageIO_content["result"]= result5;
-                    console.log(messageIO_content)
+                    // console.log(messageIO_content)
                     socket_io.send(JSON.stringify({
                         "header":"add_data",
                         "content":messageIO_content
@@ -132,7 +132,7 @@ function socket_connect() {
                 }, 11000)
             } 
             else if (received_data["ets"]) {
-                // console.log(received_data)
+                console.log("received_data['ets']")
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
@@ -141,7 +141,7 @@ function socket_connect() {
                         JSON.parse(JSON.stringify(PLAYER_LIST_2D)),
                         JSON.parse(JSON.stringify(GAME_HISTORY52))
                     )
-                    // console.log(messageIO_content)
+                    console.log("send:",messageIO_content)
 
                     if(messageIO_content){
                         socket_io.send(JSON.stringify({
