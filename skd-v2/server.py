@@ -17,22 +17,29 @@ def handle_message(msg):
     data = obj["content"]
     if obj["header"] == "add_data":
         data_class.addDt(data)
+        for model in model_list:
+            model.checkResult(int(data['result']))
         print("________________")
     elif obj["header"] == "save":
         data_class.save()
-    else:
-        # data_class.split()
-        # max_score = -99999
-        # prd = None
-        # for model in model_list:
-        #     model.makePrd(data_class.x_train, data_class.y_train, data)
-        #     score_trend = model.getTrend()
-        #     print(score_trend, model.prd, model.name)
-        #     max_score = max(max_score, score_trend)
-        #     if score_trend == max_score:
-        #         prd = model.prd
+    else: #obj["header"] == "for_prd"
+        objlist_filter = FILTER_OBJ(data_class.jsData, data)
+        npdata = OBJLIST_2_MATRIX(objlist_filter)
+        x_train = npdata[:, :-1]
+        y_train = npdata[:, -1]
+        x_test = OBJ_2_ARR1D(data)
 
-        # emit('response', json.dumps({"content": prd}))
+        max_score = -99999
+        prd = None
+        for model in model_list:
+            model.makePrd(x_train, y_train, x_test)
+            score_trend = model.getTrend()
+            print(score_trend, model.prd, model.name)
+            max_score = max(max_score, score_trend)
+            if score_trend == max_score:
+                prd = model.prd
+
+        emit('response', json.dumps({"content": prd}))
         pass
 
 @socketio.on('connect')

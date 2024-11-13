@@ -136,6 +136,7 @@ function socket_connect() {
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
+                    profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
                     messageIO_content = make_content(
                         JSON.parse(JSON.stringify(PROFITS_LIST_2D)),
                         JSON.parse(JSON.stringify(PLAYER_LIST_2D)),
