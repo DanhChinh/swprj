@@ -68,7 +68,7 @@ function send_bet(player) {
     if (player.choice === undefined || !REMOTE.isPlay) { return 0; }
     let eid, b;
     player.choice % 2 == 0 ? eid = 2 : eid = 5;
-    b = normalization(player.value/5000);
+    b = normalization(player.value/(+DOM_gameMax.value / + DOM_myMax.value));
     b = Math.max(b, 500);
     let betMessage = MESSAGE_WS.bet(eid, b);
 
@@ -142,7 +142,7 @@ function socket_connect() {
                         JSON.parse(JSON.stringify(PLAYER_LIST_2D)),
                         JSON.parse(JSON.stringify(GAME_HISTORY52))
                     )
-                    console.log("send:",messageIO_content)
+                    console.log("send: messageIO_content")
 
                     if(messageIO_content){
                         socket_io.send(JSON.stringify({
