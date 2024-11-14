@@ -1,19 +1,22 @@
 import numpy as np
-import os, json
-from datetime import datetime
-import time
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.svm import SVR
+from scipy import stats
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.tree import DecisionTreeRegressor
+# from sklearn.ensemble import RandomForestRegressor
+# from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
 from mongodb_connect import COLLECTION_FIND
 
 def FILTER_OBJ(OBJLIST, OBJ):
-    OBJLIST_FILTER = filter(
-        lambda record: record["history52"][-2:] == OBJ["history52"][-2:], OBJLIST
-    )
-    return list(OBJLIST_FILTER)
+    OBJLIST_FILTER = []
+    for index in range(-5, 0, 1):
+        OBJLIST_FILTER = filter(
+            lambda record: record["history52"][index:] == OBJ["history52"][index:], OBJLIST
+        )
+        OBJLIST_FILTER = list(OBJLIST_FILTER)
+        if len(OBJLIST_FILTER)>30:
+            return OBJLIST_FILTER
+    return []
 
 
 def OBJLIST_2_MATRIX(OBJLIST):
@@ -23,10 +26,13 @@ def OBJLIST_2_MATRIX(OBJLIST):
         MATRIX.append(row)
     return np.array(MATRIX)
 
-def OBJ_2_ARR1D(OBJ):
-    hours = OBJ['hours']
-    profitS = OBJ['profitS']
-    usersTop100 = OBJ['userS'][-100:]
+def work_width_hours(hours):
+    return [hours//6, hours]
+def work_width_profitS(data):
+    numeric = [np.mean(data), np.median(data), np.var(data), np.std(data), np.max(data) - np.min(data), np.percentile(data, 25), np.percentile(data, 75), stats.skew(data), stats.kurtosis(data)]
+    return data[-5:] + numeric
+def work_width_userS(userS):
+    usersTop100 = userS[-100:]
     counter = [0,0,0,0,0,0]
     total_2 = 0
     total_5 = 0
@@ -41,10 +47,24 @@ def OBJ_2_ARR1D(OBJ):
             total_2 += user["m"]
         if user["5"]:
             total_5 += user["m"]
+    return [len(userS), total_2, total_5] + counter 
+def work_width_history52(history52):
+    hs = history52[-10:]
+    historybinary = [i%2 for i in history52]
+    total_1 = sum(historybinary)
+    total_2 = len(historybinary) - total_1
+    return [total_1, total_2, history52.count(0), history52.count(1), history52.count(2), history52.count(3), history52.count(4)] + hs 
+
+def OBJ_2_ARR1D(OBJ):
+    o = work_width_hours(OBJ["hours"])
+    p = work_width_profitS(OBJ["profitS"])
+    u = work_width_userS(OBJ["userS"])
+    h = work_width_history52(OBJ["history52"])
+    arr = o + p + u + h
     if "result" in OBJ.keys():
         result = OBJ["result"]      
-        return [hours] + profitS + usersTop100_2Arr + counter + [result]
-    return [hours] + profitS + usersTop100_2Arr + counter
+        return arr + [result]
+    return arr
 
 
  
