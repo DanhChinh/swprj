@@ -57,17 +57,20 @@ def saveJs(path, data):
         json.dump(data, file, indent=4)
     print("->done") 
 class PRD:
-    def __init__(self, model, name=""):
+    def __init__(self, model, name, neighbors):
         self.model = model
         self.name = name
         self.prd = None
         self.score = 0
+        self.neighbors = neighbors
     def makePrd(self, x_train, y_train, x_test):
+        if len(x_train)<self.neighbors:
+            return None
         
         self.model.fit(x_train, y_train)
         self.prd = int(self.model.predict([x_test])[0])
     def checkResult(self, result):
-        if not  self.prd:
+        if self.prd == None:
             return 0
         if self.prd %2 == result%2:
             if self.prd == result:
@@ -92,9 +95,12 @@ class DATA:
 
 data_class = DATA()
 
-m1 = PRD(DecisionTreeClassifier(), "DecisionTreeClassifier")
-m2 = PRD(DecisionTreeRegressor(), "DecisionTreeRegressor")
-m5 = PRD(SVR(), "SVR")
-m6 = PRD(KNeighborsRegressor(n_neighbors=3), "KNeighborsRegressor")
+# m1 = PRD(DecisionTreeClassifier(), "DecisionTreeClassifier")
+# m2 = PRD(DecisionTreeRegressor(), "DecisionTreeRegressor")
+# m5 = PRD(SVR(), "SVR")
+m1 = PRD(KNeighborsRegressor(n_neighbors=3), "KNeighborsRegressor_3", 3)
+m2 = PRD(KNeighborsRegressor(n_neighbors=5), "KNeighborsRegressor_5", 5)
+m3 = PRD(KNeighborsRegressor(n_neighbors=7), "KNeighborsRegressor_7", 7)
+m4 = PRD(KNeighborsRegressor(n_neighbors=9), "KNeighborsRegressor_9", 9)
 
-model_list = [m1, m2, m5, m6]
+model_list = [m1, m2, m3, m4]
