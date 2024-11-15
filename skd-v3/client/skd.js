@@ -76,8 +76,43 @@ function send_bet(player) {
     socket.send(JSON.stringify(betMessage));
 
 }
+var newPlayer ={
+    1:0,
+    2:0,
+    3:0,
+    get_profit: function(result){
+        if(result %2 ==0){
+            return this["2"] - this["1"] - this["3"]
+        }
+        if(result == 1){
+            return this["1"] *3 - this["2"] - this["3"]
+        }
+        return this["3"] *3 - this["2"] - this["1"]
+    },
+    make_b: function(profit_list){
 
 
+        let slice_arr = profit_list.slice(1, 4)
+        let minValue = Math.min(...slice_arr)
+        for (let i = 1; i <=3; i++){
+            this[i] = profit_list[i] - minValue;
+        }
+    }
+    
+}
+function normalizeArray(arr) {
+    // Bước 1: Tìm phần tử nhỏ nhất trong mảng
+    const minValue = Math.min(...arr);
+
+    // Bước 2: Trừ đi giá trị của minValue cho tất cả các phần tử
+    return arr.map(x => x - minValue);
+}
+function NEW_ALG(profit_list){
+    let arr = [profit_list[1], profit_list[2], profit_list[3]];
+    return normalizeArray(arr);
+
+
+}
 
 
 function socket_connect() {
@@ -96,7 +131,6 @@ function socket_connect() {
                 socket.send(JSON.stringify(MESSAGE_WS.Hkl));
             }else if (received_data["gr"]){
                 console.log("start:",received_data["gr"])
-                GAME_HISTORY52 = received_data["gr"];
             }
             else if (received_data["rt"] && received_data["dices"]) {
                 //endTime, getResult
@@ -104,24 +138,13 @@ function socket_connect() {
 
                 COUNTER.timer = 0;
                 let result5 = +received_data["rt"];
-                GAME_HISTORY52.shift();
-                GAME_HISTORY52.push(result5)
-
                 console.log("End round:", result5)
-
-                HISTORY_PROFITS.player.push((result5%2 == PLAYER.choice%2) ? PLAYER.value : -PLAYER.value)
+                let pprofit = newPlayer.get_profit(result5)
+                console.log("profit:", pprofit)
+                HISTORY_PROFITS.player.push(pprofit)
                 HISTORY_PROFITS.game.push(profits[result5])
-                if(messageIO_content){
-                    messageIO_content["result"]= result5;
-                    messageIO_content["profit"]= HISTORY_PROFITS.game[HISTORY_PROFITS.game.length-1];
-                    // console.log(messageIO_content)
-                    socket_io.send(JSON.stringify({
-                        "header":"add_data",
-                        "content":messageIO_content
-                    }));
-                }
+
                 PROFITS_LIST_2D = []
-                PLAYER_LIST_2D = []
 
                 CHART.game = drawChart(HISTORY_PROFITS.game, "DOM_gameChart", CHART.game);
                 CHART.player = drawChart(HISTORY_PROFITS.player, "DOM_myChart", CHART.player);
@@ -138,26 +161,9 @@ function socket_connect() {
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
                     profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
-                    messageIO_content = make_content(
-                        JSON.parse(JSON.stringify(PROFITS_LIST_2D)),
-                        JSON.parse(JSON.stringify(PLAYER_LIST_2D)),
-                        JSON.parse(JSON.stringify(GAME_HISTORY52))
-                    )
-                    console.log("send: messageIO_content")
+                    newPlayer.make_b(profit_s40)
+                    console.log("newPlayer.", newPlayer)
 
-                    if(messageIO_content){
-                        if(old_message){
-                            messageIO_content.parentId = old_message.id;
-                        }
-                        socket_io.send(JSON.stringify({
-                            "header":"for_prd",
-                            "content":messageIO_content
-                        }));
-                        old_message = JSON.parse(JSON.stringify(messageIO_content));
-                    }else{
-                        console.log("messageIO_content is null")
-                        old_message = null;
-                    }
 
                 }
                 //updateDOM
@@ -166,7 +172,7 @@ function socket_connect() {
                 profits.updateProfit();
                 profits.updateDom();
                 PROFITS_LIST_2D.push(profits.toArray());
-                PLAYER_LIST_2D.push(received_data["ps"])
+                // PLAYER_LIST_2D.push(received_data["ps"])
             } 
             else {
                 // console.log(data)
