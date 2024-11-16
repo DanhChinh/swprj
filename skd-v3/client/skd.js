@@ -46,10 +46,10 @@ function socket_connect() {
             else if (received_data["rt"] && received_data["dices"]) {
                 //endTime, getResult
                 //delete
-                // profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
+                console.log(TOTALBETSONTHETABLE.toArray())
                 BOOKMAKERSPROFIT.show()
-                COMPUTER.make_b(BOOKMAKERSPROFIT.toArray());
-                console.log("COMPUTER.", COMPUTER)
+                COMPUTER.make_b(TOTALBETSONTHETABLE.toArray());
+                // console.log("COMPUTER.", COMPUTER)
                 //enddelete
 
                 COUNTER.timer = 0;
