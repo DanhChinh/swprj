@@ -9,60 +9,7 @@ var MESSAGE_WS = {
 
 }
 
-var moneys = {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    "total": 0,
-    updateMoney: function (arrayData) {
-        this["total"] = 0;
-        for (let i = 0; i < 6; i++) {
-            this[i] = +arrayData[i]["v"];
-            this["total"] += this[i];
-        }
-    },
-    updateDom: function () {
-        for (let i = 0; i < 6; i++) {
-            document.getElementById(`money${i}`).innerText = formatn(this[i]);
-        }
-    }
-}
 
-
-var profits = {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    "maxprofit": -999999999,
-    updateProfit: function () {
-        this[0] = moneys["total"] - (moneys[0] * 16 + moneys[2] * 2);
-        this[4] = moneys["total"] - (moneys[4] * 16 + moneys[2] * 2);
-        this[2] = moneys["total"] - moneys[2] * 2;
-        this[1] = moneys["total"] - (moneys[1] * 4 + moneys[5] * 2);
-        this[3] = moneys["total"] - (moneys[3] * 4 + moneys[5] * 2);
-        this["maxprofit"] = Math.max(this[0], this[1], this[2], this[3], this[4]);
-    },
-    updateDom: function () {
-        for (let i = 0; i < 6; i++) {
-            let e = document.getElementById(`profit${i}`);
-            e.innerText = formatn(this[i]);
-            if (this[i] == this["maxprofit"]) {
-                e.classList.add("maxprofit");
-            } else {
-                e.classList.remove("maxprofit");
-            }
-
-        }
-    },
-    toArray: function(){
-        return [this[0], this[1], this[2], this[3], this[4]]
-    }
-}
 
 function send_bet(player) {
     if (player.choice === undefined || !REMOTE.isPlay) { return 0; }
@@ -76,43 +23,7 @@ function send_bet(player) {
     socket.send(JSON.stringify(betMessage));
 
 }
-var newPlayer ={
-    1:0,
-    2:0,
-    3:0,
-    get_profit: function(result){
-        if(result %2 ==0){
-            return this["2"] - this["1"] - this["3"]
-        }
-        if(result == 1){
-            return this["1"] *3 - this["2"] - this["3"]
-        }
-        return this["3"] *3 - this["2"] - this["1"]
-    },
-    make_b: function(profit_list){
 
-
-        let slice_arr = profit_list.slice(1, 4)
-        let minValue = Math.min(...slice_arr)
-        for (let i = 1; i <=3; i++){
-            this[i] = profit_list[i] - minValue;
-        }
-    }
-    
-}
-function normalizeArray(arr) {
-    // Bước 1: Tìm phần tử nhỏ nhất trong mảng
-    const minValue = Math.min(...arr);
-
-    // Bước 2: Trừ đi giá trị của minValue cho tất cả các phần tử
-    return arr.map(x => x - minValue);
-}
-function NEW_ALG(profit_list){
-    let arr = [profit_list[1], profit_list[2], profit_list[3]];
-    return normalizeArray(arr);
-
-
-}
 
 
 function socket_connect() {
@@ -134,15 +45,20 @@ function socket_connect() {
             }
             else if (received_data["rt"] && received_data["dices"]) {
                 //endTime, getResult
-
+                //delete
+                // profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
+                BOOKMAKERSPROFIT.show()
+                COMPUTER.make_b(BOOKMAKERSPROFIT.toArray());
+                console.log("COMPUTER.", COMPUTER)
+                //enddelete
 
                 COUNTER.timer = 0;
                 let result5 = +received_data["rt"];
                 console.log("End round:", result5)
-                let pprofit = newPlayer.get_profit(result5)
-                console.log("profit:", pprofit)
-                HISTORY_PROFITS.player.push(pprofit)
-                HISTORY_PROFITS.game.push(profits[result5])
+                let profitofcomputer = COMPUTER.get_profit(result5)
+                console.log("profit:", formatn(profitofcomputer))
+                HISTORY_PROFITS.player.push(profitofcomputer)
+                HISTORY_PROFITS.game.push(BOOKMAKERSPROFIT[result5])
 
                 PROFITS_LIST_2D = []
 
@@ -160,19 +76,19 @@ function socket_connect() {
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
-                    profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
-                    newPlayer.make_b(profit_s40)
-                    console.log("newPlayer.", newPlayer)
+                    // profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
+                    // COMPUTER.make_b(profit_s40)
+                    // console.log("COMPUTER.", COMPUTER)
+
 
 
                 }
                 //updateDOM
                 DOM_timer.style = `width: ${Math.floor(COUNTER.timer * 100 / 50)}%`;
-                moneys.updateMoney(received_data["ets"]);
-                profits.updateProfit();
-                profits.updateDom();
-                PROFITS_LIST_2D.push(profits.toArray());
-                // PLAYER_LIST_2D.push(received_data["ps"])
+                TOTALBETSONTHETABLE.update(received_data["ets"]);
+                BOOKMAKERSPROFIT.update(TOTALBETSONTHETABLE);
+                BOOKMAKERSPROFIT.render();
+                PROFITS_LIST_2D.push(BOOKMAKERSPROFIT.toArray());
             } 
             else {
                 // console.log(data)
