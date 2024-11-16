@@ -63,16 +63,19 @@ function socket_connect() {
 
                 CHART.game = drawChart(HISTORY_PROFITS.game, "DOM_gameChart", CHART.game);
                 CHART.player = drawChart(HISTORY_PROFITS.player, "DOM_myChart", CHART.player);
-                console.log("_______________________________________________________")
 
                 document.getElementById(`profit${result5}`).classList.add("isresult");
                 setTimeout(() => {
                     document.getElementById(`profit${result5}`).classList.remove("isresult");
                 }, 11000)
+
+                COUNTER.round +=1;
+                console.groupEnd();
             } 
             else if (received_data["ets"]) {
                 console.log("received_data['ets']")
                 //betTime
+                if(!COUNTER.timer){console.groupCollapsed(`Round: ${COUNTER.round}`)}
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
                     console.log("BOOKMP s40:")
