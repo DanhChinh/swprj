@@ -46,9 +46,8 @@ function socket_connect() {
             else if (received_data["rt"] && received_data["dices"]) {
                 //endTime, getResult
                 //delete
-                console.log(TOTALBETSONTHETABLE.toArray())
                 BOOKMAKERSPROFIT.show()
-                COMPUTER.make_b(TOTALBETSONTHETABLE.toArray());
+                // COMPUTER.make_b(TOTALBETSONTHETABLE.toArray());
                 // console.log("COMPUTER.", COMPUTER)
                 //enddelete
 
@@ -60,7 +59,7 @@ function socket_connect() {
                 HISTORY_PROFITS.player.push(profitofcomputer)
                 HISTORY_PROFITS.game.push(BOOKMAKERSPROFIT[result5])
 
-                PROFITS_LIST_2D = []
+                TOTALBOTT_LIST = []
 
                 CHART.game = drawChart(HISTORY_PROFITS.game, "DOM_gameChart", CHART.game);
                 CHART.player = drawChart(HISTORY_PROFITS.player, "DOM_myChart", CHART.player);
@@ -76,10 +75,11 @@ function socket_connect() {
                 //betTime
                 COUNTER.timer++;
                 if (COUNTER.timer == 40) {
-                    // profit_s40 = PROFITS_LIST_2D[PROFITS_LIST_2D.length - 1]
-                    // COMPUTER.make_b(profit_s40)
-                    // console.log("COMPUTER.", COMPUTER)
-
+                    console.log("BOOKMP s40:")
+                    BOOKMAKERSPROFIT.show()
+                    let lastThreeElements = JSON.parse(JSON.stringify(TOTALBOTT_LIST.slice(-3)))
+                    let avg_arr =AVG_ARR(lastThreeElements);
+                    COMPUTER.make_b(avg_arr);
 
 
                 }
@@ -88,7 +88,7 @@ function socket_connect() {
                 TOTALBETSONTHETABLE.update(received_data["ets"]);
                 BOOKMAKERSPROFIT.update(TOTALBETSONTHETABLE);
                 BOOKMAKERSPROFIT.render();
-                PROFITS_LIST_2D.push(BOOKMAKERSPROFIT.toArray());
+                TOTALBOTT_LIST.push(TOTALBETSONTHETABLE.toArray());
             } 
             else {
                 // console.log(data)
